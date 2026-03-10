@@ -1,15 +1,22 @@
 const accordions = document.querySelectorAll(".accordion");
+const stickyHeader = document.body?.dataset.stickyHeader === "true";
 
 const openAccordion = (accordion) => {
+    const title = accordion.querySelector(".accordion__title");
     const content = accordion.querySelector(".accordion__content");
     accordion.classList.add("accordion__active");
+    title?.setAttribute("aria-expanded", "true");
+    content.hidden = false;
     content.style.maxHeight = content.scrollHeight + "px";
 };
 
 const closeAccordion = (accordion) => {
+    const title = accordion.querySelector(".accordion__title");
     const content = accordion.querySelector(".accordion__content");
     accordion.classList.remove("accordion__active");
+    title?.setAttribute("aria-expanded", "false");
     content.style.maxHeight = null;
+    content.hidden = true;
 };
 
 // If sticky_header add not small screen size, offset of 80/100 based on device width.

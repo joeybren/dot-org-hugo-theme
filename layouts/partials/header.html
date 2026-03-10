@@ -19,13 +19,25 @@
         <nav class="main-menu">
             <ul class="main-menu__wrapper">
                 {{ range . }}
+                {{ $submenuId := printf "submenu-%s" (.Name | urlize) }}
                 <li class="top-menu-item{{ if .HasChildren }} menu-item-has-children{{ end }}">
-                    <a href="{{ if .HasChildren }}#{{ else }}{{ .URL | relLangURL }}{{ end }}" 
+                    {{ if .HasChildren }}
+                    <button
+                        type="button"
+                        class="menu-link submenu-toggle"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        aria-controls="{{ $submenuId }}">
+                        {{ .Name }}
+                    </button>
+                    {{ else }}
+                    <a href="{{ .URL | relLangURL }}" 
                         class="menu-link{{ if strings.HasPrefix .URL "http" }} external-link{{ end }}">
                         {{ .Name }}
                     </a>
+                    {{ end }}
                     {{ if .HasChildren }}
-                    <div class="sub-menu">
+                    <div id="{{ $submenuId }}" class="sub-menu">
                         <ul class="sub-menu__nav">
                             {{ range .Children }}
                             <li class="menu-item">

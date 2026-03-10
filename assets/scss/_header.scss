@@ -119,7 +119,8 @@
         margin-left: 0; // reset.
         padding-left: 0; // reset.
         // All Links.
-        a {
+        a,
+        button.menu-link {
             display: block;
             color: var(--menu-link-color);
             text-decoration: none;
@@ -246,7 +247,7 @@
 
     // Top row only.
     .top-menu-item {
-        > a {
+        > .menu-link {
             padding-top: 25px;
             padding-bottom: 25px;
             border-bottom: 1px solid var(--gray-300);
@@ -278,7 +279,7 @@
                 transition: none;
             }
 
-            a::after {
+            > .menu-link::after {
                 // opening menu / rotating arrows.
                 transition: transform 0.1s ease-in;
                 transform: rotate(180deg) translateY(-50%);
@@ -290,7 +291,7 @@
                 }
             }
         }
-        > a {
+        > .menu-link {
             &::after {
                 display: inline-block;
                 content: "";

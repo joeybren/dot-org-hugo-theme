@@ -1,11 +1,12 @@
 {{ $loading := .Get "loading" | default "lazy" }}
+{{ $title := .Get "title" | default "Embedded content" }}
 
 <div class="responsive-iframe-wrapper">
     <iframe 
     src="{{ .Get "src" }}" 
     width="{{ with .Get "width" }}{{ . }}{{ else }}100%{{ end }}" 
     height="{{ with .Get "height" }}{{ . }}{{ else }}600px{{ end }}" 
-    title="{{ .Get "title" }}"
+    title="{{ $title }}"
     frameborder="0" 
     allowfullscreen
     loading="{{ $loading }}"

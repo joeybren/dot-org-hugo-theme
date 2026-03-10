@@ -8,9 +8,10 @@
     const mainMenu = document.querySelector('.main-menu');
     const menuItems = Array.from(document.querySelectorAll('.menu-item-has-children'));
     const menuSubs = Array.from(document.querySelectorAll('.sub-menu'));
-    const menuHeadings = document.querySelectorAll('.menu-item-has-children > a');
+    const menuHeadings = document.querySelectorAll('.menu-item-has-children > .menu-link');
     const dropdowns = document.querySelectorAll('.dropdown');
     const header = document.querySelector('.header .container');
+    const skipLinks = Array.from(document.querySelectorAll('.skip-link[href^="#"]'));
 
     // States.
     let closeMenuTimeout;
@@ -150,10 +151,12 @@
     const openMenu = (el) => {
         menuItems.forEach(item => {
             item.classList.remove('is-open')
+            item.querySelector('.menu-link')?.setAttribute('aria-expanded', 'false');
             item.blur();
         });
         document.activeElement?.blur();
         el.classList.add('is-open');
+        el.querySelector('.menu-link')?.setAttribute('aria-expanded', 'true');
         el.focus();
     };
 
@@ -161,6 +164,7 @@
         document.activeElement?.blur();
         menuItems.forEach(item => {
             item.classList.remove('is-open');
+            item.querySelector('.menu-link')?.setAttribute('aria-expanded', 'false');
             item.blur();
         });
     };
@@ -204,6 +208,7 @@
             hamburger.classList.remove('is-active');
             mainMenu.classList.remove('is-active');
             document.body.classList.remove('has-menu-active');
+            hamburger.setAttribute('aria-expanded', 'false');
         }
 
         if (!isMobile) {
@@ -223,20 +228,26 @@
         hamburger.classList.toggle('is-active');
         mainMenu.classList.toggle('is-active');
         document.body.classList.toggle('has-menu-active');
+        hamburger.setAttribute('aria-expanded', hamburger.classList.contains('is-active') ? 'true' : 'false');
     };
 
     const handleHeadingClick = (e) => {
         if (isAnimating) {
             return;
         }
+        const trigger = e.currentTarget;
+        const menuItem = trigger.parentNode;
         if (isMobile) {
-            e.preventDefault();
-            const menuItem = e.target.parentNode;
             menuItem.classList.toggle('is-open');
-            const subMenu = e.target.nextElementSibling;
+            trigger.setAttribute('aria-expanded', menuItem.classList.contains('is-open') ? 'true' : 'false');
+            const subMenu = trigger.nextElementSibling;
             slideToggle(subMenu, animationSpeed);
-        } else if (e.target.getAttribute('href') === '#') {
-            e.preventDefault();
+        } else {
+            const isExpanded = trigger.getAttribute('aria-expanded') === 'true';
+            closeMenu();
+            if (!isExpanded) {
+                openMenu(menuItem);
+            }
         }
     };
 
@@ -248,6 +259,32 @@
         if (e.keyCode == 27) {
             startCloseMenuTimeout();
         }
+    };
+
+    const getFirstFocusableDescendant = (element) => {
+        if (!element) {
+            return null;
+        }
+
+        return element.querySelector(
+            'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+    };
+
+    const handleSkipLinkClick = (e) => {
+        const href = e.currentTarget.getAttribute('href');
+        if (!href || href === '#') {
+            return;
+        }
+
+        const target = document.querySelector(href);
+        if (!target) {
+            return;
+        }
+
+        // Move keyboard focus into the content area so the next Tab stays in-page.
+        const focusTarget = getFirstFocusableDescendant(target) || target;
+        focusTarget.focus();
     };
 
     // Apply hover intent.
@@ -309,6 +346,7 @@
         document.addEventListener('keydown', handleEscapeKey);
         hamburger?.addEventListener('click', handleHamburgerClick);
         menuHeadings.forEach(heading => heading.addEventListener('click', handleHeadingClick));
+        skipLinks.forEach(link => link.addEventListener('click', handleSkipLinkClick));
         applyHoverIntent();
         applyDropdownListeners();
         updateHeaderTop();
